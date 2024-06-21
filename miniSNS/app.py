@@ -1,3 +1,22 @@
+from flask import Flask, render_template, jsonify, request
+
+app = Flask(__name__)
+
+@app.route('/')
+def root():
+    return """
+<h1>miniSNS</h1>
+<div>
+    <button>메인 페이지</button>
+    <button>회원 가입</button>
+    <button>포스팅</button>
+</div>
+"""
+
+@app.route('/main', methods = ['GET'])
+def main():
+    return render_template('main.html', users = app.users)
+
 from flask import Flask, jsonify, request
 
 app = Flask(__name__)
@@ -5,15 +24,11 @@ app.users = {}
 app.posts = []
 app.idCnt = 1
 
-@app.route('/sign-up', methods=['POST'])
-def signUp():
-    newUser = request.json
-    newUser['id'] = app.idCnt
-    app.users[app.idCnt] = newUser
-    app.idCnt += 1
-    return jsonify(newUser)
+@app.route('/sign-up', methods=['GET'])
+def signUpPage():
+    return render_template('signup.html')
 
-@app.route('/post', methods=['POST'])
+@app.route('/sign-up', methods=['POST'])
 def post():
     payload = request.json
     userID = int(payload['id'])
@@ -74,10 +89,6 @@ def timeline(userId):
     followList.add(userId)
     timeline = [msg for msg in app.posts if msg['userId'] in followList]
 
-    return jsonify({
-        'userId': userId,
-        'timeline': timeline
-    })
-
 if __name__ == '__main__':
     app.run()
+
